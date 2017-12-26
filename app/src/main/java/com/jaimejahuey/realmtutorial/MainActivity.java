@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         // on a background thread. The RealmBaseAdapter will automatically keep track of changes and will
         // automatically refresh when a change is detected.
         RealmResults<Task> tasks = mRealm.where(Task.class).findAll();
+        tasks = tasks.sort("mTimeStamp");
         final TaskAdapter adapter = new TaskAdapter(this, tasks);
 
         ListView listView = (ListView) findViewById(R.id.task_list);
@@ -52,12 +53,14 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //Save edited task
+                                changeTaskName(task.getId(), String.valueOf(taskEditText.getText()));
                             }
                         })
                         .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //Delete task
+                                deleteTask(task.getId());
                             }
                         })
                         .create();
@@ -84,8 +87,9 @@ public class MainActivity extends AppCompatActivity {
                                 mRealm.executeTransactionAsync(new Realm.Transaction() {
                                     @Override
                                     public void execute(Realm realm) {
-                                        realm.createObject(Task.class, UUID.randomUUID().toString())
-                                                .setName(String.valueOf(taskEditText.getText()));
+                                        Task task = realm.createObject(Task.class, UUID.randomUUID().toString());
+                                        task.setTimeStamp(System.currentTimeMillis());
+                                        task.setName(String.valueOf(taskEditText.getText()));
                                     }
                                 });
                             }
@@ -108,8 +112,40 @@ public class MainActivity extends AppCompatActivity {
         mRealm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Task task = realm.where(Task.class).equalTo("id", taskId).findFirst();
+                Task task = realm.where(Task.class).equalTo("mId", taskId).findFirst();
                 task.setDone(!task.isDone());
+            }
+        });
+    }
+
+    private void changeTaskName(final String taskId, final String name){
+        mRealm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Task task = mRealm.where(Task.class).equalTo("mId", taskId).findFirst();
+                task.setName(name);
+            }
+        });
+    }
+
+    private void deleteTask(final String taskId) {
+        mRealm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.where(Task.class).equalTo("mId", taskId)
+                        .findFirst()
+                        .deleteFromRealm();
+            }
+        });
+    }
+
+    private void deleteAllDone() {
+        mRealm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.where(Task.class).equalTo("mDone", true)
+                        .findAll()
+                        .deleteAllFromRealm();
             }
         });
     }

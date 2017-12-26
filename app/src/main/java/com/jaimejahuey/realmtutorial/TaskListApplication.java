@@ -23,6 +23,7 @@ public class TaskListApplication extends Application {
         RealmConfiguration realmConfig = new RealmConfiguration.Builder()
                 .name("JahueyRealm")
                 .schemaVersion(0)
+                .deleteRealmIfMigrationNeeded()
                 .build();
 
         Realm.setDefaultConfiguration(realmConfig);
