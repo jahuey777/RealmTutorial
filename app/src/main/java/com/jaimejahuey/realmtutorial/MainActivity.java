@@ -19,7 +19,8 @@ import java.util.UUID;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-//Main
+//Main activity
+//
 public class MainActivity extends AppCompatActivity {
 
     private Realm mRealm;
