@@ -19,7 +19,7 @@ import java.util.UUID;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-//Jaime
+//Jaime Jahuey
 public class MainActivity extends AppCompatActivity {
 
     private Realm mRealm;
